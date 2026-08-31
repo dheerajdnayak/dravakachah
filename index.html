@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>New Tab</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <!-- google fonts lexend and quicksand -->
+    <script src="https://kit.fontawesome.com/607a222a2c.js" crossorigin="anonymous">
+    </script>
+</head>
+<body>
+
+    <!-- Wallpaper layer (now above canvas) -->
+    <div id="wallpaper-layer"></div>
+    <div id="beatFlash" class="beat-flash"></div>
+    <canvas id="fluid-canvas"></canvas>
+
+    <div class="ui-overlay">
+        <div class="top-bar-left">
+            <button class="btn" id="songsToggle" aria-label="Songs">
+                <i class="fas fa-music"></i>
+                <span class="badge" id="songBadge">0</span>
+            </button>
+        </div>
+
+        <div class="top-bar-right">
+            <button class="btn" id="settingsToggle" aria-label="Settings">
+                <i class="fas fa-sliders-h"></i>
+            </button>
+        </div>
+
+        <div class="top-bar glass" id="topBar">
+            <span class="time" id="timeDisplay">--:--</span>
+            <span class="date" id="dateDisplay">--- --</span>
+            <span class="divider"></span>
+            <span class="weather">
+                <i class="fas fa-cloud-sun" id="weatherIcon"></i>
+                <span class="temp-val" id="tempDisplay">--</span>
+                <span class="temp-unit">°C</span>
+            </span>
+        </div>
+
+        <div class="search-container" id="searchContainer">
+            <div class="search-wrapper unfocused" id="searchWrapper">
+                <button class="plus-btn" id="plusBtn" aria-label="Attach image">
+                    <i class="fas fa-plus"></i>
+                    <span class="thumb-badge" id="thumbBadge">1</span>
+                </button>
+                <div class="search-bar glass-light" id="searchBar">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" alt="attached" />
+                        <button class="remove-img" id="removeImg" title="Remove image">✕</button>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search or type URL…" autofocus />
+                    <span class="shortcut">⌘K</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="macos-dock" id="dock">
+            <div class="items" id="dockItems"></div>
+        </div>
+
+        <div class="bottom-widget" id="bottomWidget">
+            <span class="ping-display"><i class="fas fa-wifi"></i> <span id="pingValue">--</span> ms</span>
+            <span class="dot"></span>
+            <span id="greeting"><i class="far fa-clock"></i> Good evening</span>
+            <span class="dot"></span>
+            <span class="now-playing" id="nowPlaying"><i class="fas fa-headphones"></i> <strong>No song</strong></span>
+            <span class="beat-indicator" id="beatIndicator"></span>
+        </div>
+    </div>
+
+    <div class="side-panel" id="songsPanel">
+        <div class="panel-header">
+            <h2><i class="fas fa-music"></i> Songs</h2>
+            <button class="close-btn" id="songsClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-body" id="songsBody">
+            <div class="empty-state" id="songsEmpty">
+                <div class="icon"><i class="fas fa-folder-open"></i></div>
+                <p>No songs loaded.<br />Select a folder with MP3 files.</p>
+                <button class="btn-glass primary" id="selectFolderBtn"><i class="fas fa-folder"></i> Select Folder</button>
+            </div>
+            <div class="songs-list" id="songsList" style="display:none;"></div>
+        </div>
+        <div class="player-controls" id="playerControls" style="display:none;">
+            <div class="progress-wrap">
+                <span class="time" id="currentTime">0:00</span>
+                <div class="progress-bar" id="progressBar">
+                    <div class="fill" id="progressFill"></div>
+                </div>
+                <span class="time" id="totalTime">0:00</span>
+            </div>
+            <div class="btn-row">
+                <button class="ctrl-btn" id="prevBtn" title="Previous"><i class="fas fa-step-backward"></i></button>
+                <button class="ctrl-btn play-btn" id="playBtn" title="Play/Pause"><i class="fas fa-play" id="playIcon"></i></button>
+                <button class="ctrl-btn" id="nextBtn" title="Next"><i class="fas fa-step-forward"></i></button>
+            </div>
+            <div class="volume-wrap">
+                <span class="vol-icon" id="volIcon"><i class="fas fa-volume-up"></i></span>
+                <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="0.8" />
+            </div>
+        </div>
+    </div>
+
+    <div class="side-panel right" id="settingsPanel">
+        <div class="panel-header">
+            <h2><i class="fas fa-sliders-h"></i> Settings</h2>
+            <button class="close-btn" id="settingsClose"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-body" id="settingsBody">
+            <div class="settings-group">
+                <div class="group-title"><i class="fas fa-link"></i> Quick Links</div>
+                <div id="quicklinksEditor"></div>
+                <div style="margin-top:8px;">
+                    <button class="btn-glass primary" id="addQuicklinkBtn"><i class="fas fa-plus"></i> Add Link</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="group-title"><i class="fas fa-image"></i> Wallpaper</div>
+                <div class="setting-row">
+                    <span class="label">Background image</span>
+                    <button class="btn-glass" id="wallpaperBtn"><i class="fas fa-upload"></i> Choose</button>
+                </div>
+                <div class="setting-row">
+                    <span class="label">Parallax motion <small>Background shifts with mouse</small></span>
+                    <div class="toggle" id="parallaxToggle"><div class="knob"></div></div>
+                </div>
+                <div class="setting-row">
+                    <span class="label">Reset wallpaper</span>
+                    <button class="btn-glass danger" id="resetWallpaperBtn"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="group-title"><i class="fas fa-water"></i> Fluid</div>
+                <div class="setting-row">
+                    <span class="label">Random splats <small>Trigger a burst</small></span>
+                    <button class="btn-glass primary" id="randomSplatsBtn"><i class="fas fa-bolt"></i> Splat!</button>
+                </div>
+                <div class="setting-row">
+                    <span class="label">Splat intensity</span>
+                    <div class="range-control">
+                        <input type="range" id="splatIntensity" min="1" max="20" value="8" />
+                        <span class="val" id="splatIntensityVal">8</span>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="label">Splat radius</span>
+                    <div class="range-control">
+                        <input type="range" id="splatRadius" min="0.002" max="0.025" step="0.001" value="0.005" />
+                        <span class="val" id="splatRadiusVal">0.005</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="group-title"><i class="fas fa-rhythm"></i> Beat Detection</div>
+                <div class="setting-row">
+                    <span class="label">Enable beat sync <small>4 splats from screen corners on each beat</small></span>
+                    <div class="toggle on" id="beatToggle"><div class="knob"></div></div>
+                </div>
+                <div class="setting-row">
+                    <span class="label">Sensitivity <small>Lower = more beats</small></span>
+                    <div class="range-control">
+                        <input type="range" id="beatSensitivity" min="1.0" max="4.0" step="0.1" value="2.0" />
+                        <span class="val" id="beatSensitivityVal">2.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="lensForm" action="https://lens.google.com/upload" method="POST" enctype="multipart/form-data" target="_blank">
+        <input type="file" id="lensFileInput" name="image" accept="image/*" />
+        <input type="hidden" id="lensTextInput" name="text" value="" />
+    </form>
+    <input type="file" id="wallpaperFileInput" accept="image/*" />
+    <input type="file" id="folderInput" webkitdirectory />
+
+    <script src="script.js"></script>
+</body>
+</html>
