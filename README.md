@@ -1,2 +1,2 @@
-# dravakachah
+# DravaKachah
 Dravakachah - a beautiful new tab for any browser that integrates semi interactive glass elements, with webgl based fluid simulation and lot more...
